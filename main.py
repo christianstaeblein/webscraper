@@ -1,10 +1,5 @@
 import sys
-from crawl import normalize_url
-from crawl import get_heading_from_html
-from crawl import get_first_paragraph_from_html
-from crawl import get_urls_from_html
-from crawl import get_images_from_html
-from crawl import extract_page_data
+from crawl import get_html
 
 def main():
     if len(sys.argv) < 2:
@@ -17,6 +12,9 @@ def main():
 
     base_url = sys.argv[1]
     print(f"starting crawl of: {base_url}")
+
+    html = get_html(base_url)
+    print(html)
 
 
 if __name__ == "__main__":
