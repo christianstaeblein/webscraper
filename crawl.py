@@ -1,6 +1,7 @@
 from urllib.parse import urlsplit
 from bs4 import BeautifulSoup, Tag
 from urllib.parse import urljoin
+from urllib.parse import urlsplit
 import requests
 
 def normalize_url(url:str)->str:
@@ -86,3 +87,37 @@ def get_html(url):
         raise Exception(f"invalid content type: {content_type}")
 
     return response.text
+
+
+def crawl_page(base_url, current_url=None, page_data=None):
+    if current_url is None:
+        current_url = base_url
+
+    if page_data is None:
+        page_data = {}
+
+    # Only crawl pages on the same domain
+    if urlsplit(current_url).netloc != urlsplit(base_url).netloc:
+        return page_data
+
+    normalized_url = normalize_url(current_url)
+
+    # Don't crawl the same page twice
+    if normalized_url in page_data:
+        return page_data
+
+    print(f"Crawling: {current_url}")
+
+    try:
+        html = get_html(current_url)
+    except Exception as e:
+        print(f"Error crawling {current_url}: {e}")
+        return page_data
+
+    data = extract_page_data(html, current_url)
+    page_data[normalized_url] = data
+
+    for url in data["outgoing_links"]:
+        crawl_page(base_url, url, page_data)
+
+    return page_data
