@@ -2,6 +2,8 @@ import unittest
 from crawl import normalize_url
 from crawl import get_heading_from_html
 from crawl import get_first_paragraph_from_html
+from crawl import get_urls_from_html
+from crawl import get_images_from_html
 
 
 class TestCrawl(unittest.TestCase):
@@ -104,6 +106,18 @@ class TestCrawl(unittest.TestCase):
         expected = ""
         self.assertEqual(actual, expected)
 
+    def test_get_first_paragraph_from_html(self):
+        html = """
+        <html>
+            <body>
+                <p>Hello world.</p>
+            </body>
+        </html>
+        """
+        actual = get_first_paragraph_from_html(html)
+        expected = "Hello world."
+        self.assertEqual(actual, expected)
+
     def test_get_first_paragraph_from_html_multi_p(self):
         html="""<html>
           <body>
@@ -128,6 +142,70 @@ class TestCrawl(unittest.TestCase):
         actual = get_first_paragraph_from_html(html)
         expected = ""
         self.assertEqual(actual, expected)
+
+    def test_get_urls_from_html_relative(self):
+        input_url = "https://blog.boot.dev"
+        input_body = """
+        <html>
+            <body>
+                <a href="/about">About</a>
+            </body>
+        </html>
+        """
+
+        actual = get_urls_from_html(input_body, input_url)
+        expected = ["https://blog.boot.dev/about"]
+
+        self.assertEqual(actual, expected)
+
+    def test_get_urls_from_html_multiple_links(self):
+        input_url = "https://blog.boot.dev"
+        input_body = """
+        <html>
+            <body>
+                 <a href="/about">About</a>
+                 <a href="/contact">Contact</a>
+                 <a href="https://blog.boot.dev/pricing">Pricing</a>
+            </body>
+        </html>
+        """
+
+        actual = get_urls_from_html(input_body, input_url)
+        expected = [
+            "https://blog.boot.dev/about",
+            "https://blog.boot.dev/contact",
+            "https://blog.boot.dev/pricing",
+        ]
+
+        self.assertEqual(actual, expected)
+
+    def test_get_images_from_html_relative(self):
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><img src="/logo.png"></img></body></html>'
+
+        actual = get_images_from_html(input_body, input_url)
+        expected = ["https://crawler-test.com/logo.png"]
+
+        self.assertEqual(actual, expected)
+
+    def test_get_images_from_html_absolute(self):
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><img src="https://cdn.example.com/logo.png"></img></body></html>'
+
+        actual = get_images_from_html(input_body, input_url)
+        expected = ["https://cdn.example.com/logo.png"]
+
+        self.assertEqual(actual, expected)
+
+    def test_get_images_from_html_missing_src(self):
+        input_url = "https://crawler-test.com"
+        input_body = '<html><body><img alt="logo"></img></body></html>'
+
+        actual = get_images_from_html(input_body, input_url)
+        expected = []
+
+        self.assertEqual(actual, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
