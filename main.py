@@ -1,5 +1,6 @@
 import sys
 import asyncio
+from json_report import write_json_report
 
 from asynccrawler import crawl_site_async
 
@@ -30,6 +31,8 @@ async def main():
         print(f"Links: {len(data['outgoing_links'])}")
         print(f"Images: {len(data['image_urls'])}")
         print()
+
+    write_json_report(page_data)
 
 
 if __name__ == "__main__":
