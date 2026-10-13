@@ -27,11 +27,6 @@ def get_first_paragraph_from_html(html: str) -> str:
     else:
         return ""
 
-
-from bs4 import BeautifulSoup
-from urllib.parse import urljoin
-
-
 def get_urls_from_html(html: str, base_url: str):
     soup = BeautifulSoup(html, "html.parser")
 
